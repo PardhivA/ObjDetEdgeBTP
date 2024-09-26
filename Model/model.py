@@ -44,6 +44,7 @@ class DN(nn.Module):
 
     def forward(self, x):
         # applying all parallel convolutions and concatenating their output
+        
         out = torch.cat([conv(x) for conv in self.parallel_convs], dim=1)
         out = self.combine(out)
         return out
