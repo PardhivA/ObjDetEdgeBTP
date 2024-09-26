@@ -29,12 +29,12 @@ class DN(nn.Module):
                                dilation = dilations[0],
                                 padding=dilations[0]),
 
-            nn.Conv2d(in_channels=input_channels,  #temp
+            nn.Conv2d(in_channels=temp,  #temp
                        out_channels=output_channels,
                         kernel_size=f,
                           dilation=d,
                             padding=d)
-            for d, f in zip(dilations, filters)
+            for d, f in zip(dilations[1:], filters[1:])
         ])
 
         #combining parallel outputs through sum
