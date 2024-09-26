@@ -15,26 +15,31 @@ from .utils import (
 )
 
 class DN(nn.Module):
+    def Conv2dr1(input_channels, temp, dilationVal):
+        l1 = nn.Conv2d(in_channels=input_channels,
+                             out_channels=temp,
+                              kernel_size=1,
+                               dilation = dilationVal,
+                                padding=dilationVal)
+        return l1,temp
+    
     def __init__(self, input_channels, output_channels, dilations, filters):
         super(DN, self).__init__()
 
         assert len(dilations) == len(filters)
 
-
+        temp =64  
         #list of parallel dilated convolution layers
+        temp1 = self.Conv2dr1(input_channels,temp, dilationVal=dilations[0])
+        self.l1 = temp1[0]
+        self.temp = temp1[1]
         self.parallel_convs = nn.ModuleList([
-            nn.Conv2d(in_channels=input_channels,
-                             out_channels=temp,
-                              kernel_size=1,
-                               dilation = dilations[0],
-                                padding=dilations[0]),
-
-            nn.Conv2d(in_channels=input_channels,  #temp
+            nn.Conv2d(in_channels=self.temp,  
                        out_channels=output_channels,
                         kernel_size=f,
                           dilation=d,
                             padding=d)
-            for d, f in zip(dilations, filters)
+            for d, f in zip(dilations[1:], filters[1:])
         ])
 
         #combining parallel outputs through sum
@@ -44,6 +49,7 @@ class DN(nn.Module):
 
     def forward(self, x):
         # applying all parallel convolutions and concatenating their output
+        x = self.l1(x)
         out = torch.cat([conv(x) for conv in self.parallel_convs], dim=1)
         out = self.combine(out)
         return out
@@ -74,11 +80,11 @@ class ModifiedEfficientNetB7(EfficientNet):
 
             #inserting Dn1 b/w E5 and E6
             if idx == 4:
-                x = self.dn1(x)
+                x = self.dn1.forward(x)
 
             #inserting Dn2 b/w E6 and E7
             if idx == 5:
-                x = self.dn2(x)
+                x = self.dn2.forward(x)
 
         x = self._swish(self._bn1(self._conv_head(x)))
         return x
