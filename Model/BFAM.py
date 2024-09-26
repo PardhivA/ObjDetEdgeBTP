@@ -2,9 +2,9 @@ import torch.nn as nn
 import torch
 from torchvision.ops.boxes import nms as nms_torch
 
-from efficientnet import EfficientNet as EffNet
-from efficientnet.utils import MemoryEfficientSwish, Swish
-from efficientnet.utils_extra import Conv2dStaticSamePadding, MaxPool2dStaticSamePadding
+from model import ModifiedEfficientNetB7 as EffNet
+from utils import MemoryEfficientSwish, Swish
+from utils_extra import Conv2dStaticSamePadding, MaxPool2dStaticSamePadding
 
 
 def nms(dets, thresh):
